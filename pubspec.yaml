@@ -38,7 +38,7 @@ dependencies:
   get: ^4.6.5
   audioplayers: ^0.20.1
   uri_to_file: ^0.2.0
-  percent_indicator: ^4.2.2
+  percent_indicator: ^4.0.1
   page_transition: ^2.0.9
 
 dev_dependencies:

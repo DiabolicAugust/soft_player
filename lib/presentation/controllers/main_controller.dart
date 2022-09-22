@@ -7,7 +7,7 @@ import 'package:on_audio_query/on_audio_query.dart';
 import 'package:uri_to_file/uri_to_file.dart';
 import 'dart:io';
 
-class MainController extends GetxController{
+class MainController extends GetxController {
   final OnAudioQuery query = OnAudioQuery();
   RxBool isPlaying = false.obs;
   final player = AudioPlayer();
@@ -21,7 +21,6 @@ class MainController extends GetxController{
   Rx<SongModel> song = SongModel({}).obs;
   Rx<Uint8List> songPicture = Uint8List(0).obs;
 
-
   @override
   Future<void> onInit() async {
     // TODO: implement onInit
@@ -29,7 +28,7 @@ class MainController extends GetxController{
     requestStoragePermission();
     player.onPlayerStateChanged.listen((state) {
       isPlaying.value = state == PlayerState.PLAYING;
-      if(state == PlayerState.COMPLETED && !songIsLastInQueue.value){
+      if (state == PlayerState.COMPLETED && !songIsLastInQueue.value) {
         nextOrPrevSong(nextSong: true);
         update();
       }
@@ -43,7 +42,7 @@ class MainController extends GetxController{
   }
 
   @override
-  void dispose(){
+  void dispose() {
     player.dispose();
     super.dispose();
   }
@@ -53,41 +52,36 @@ class MainController extends GetxController{
     await player.play(songFile.path, isLocal: true);
   }
 
-  void requestStoragePermission() async{
-    if(!kIsWeb){
+  void requestStoragePermission() async {
+    if (!kIsWeb) {
       bool permission = await query.permissionsStatus();
-      if(!permission){
+      if (!permission) {
         await query.permissionsRequest();
       }
-
     }
   }
 
   Future<void> nextOrPrevSong({required bool nextSong}) async {
-    currentIndex.value = nextSong
-        ? currentIndex.value + 1
-        : currentIndex.value - 1;
+    currentIndex.value =
+        nextSong ? currentIndex.value + 1 : currentIndex.value - 1;
 
     currentIndex.value == 0
         ? songIsFirstInQueue.value = true
         : songIsFirstInQueue.value = false;
 
-    currentIndex.value ==
-    songs.length - 1
+    currentIndex.value == songs.length - 1
         ? songIsLastInQueue.value = true
         : songIsLastInQueue.value = false;
 
+    startPlaying(songs[currentIndex.value].uri!.toString());
 
-    startPlaying(songs[currentIndex.value].uri!
-        .toString());
-
-    currentSongId.value =
-        songs[currentIndex.value].id;
+    currentSongId.value = songs[currentIndex.value].id;
 
     isPlaying.value = true;
 
     song.value = songs[currentIndex.value];
-    songPicture.value = await query.queryArtwork(song.value.id, ArtworkType.AUDIO) ?? Uint8List(0);
-
+    songPicture.value =
+        await query.queryArtwork(song.value.id, ArtworkType.AUDIO) ??
+            Uint8List(0);
   }
 }

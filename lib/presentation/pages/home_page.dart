@@ -2,7 +2,6 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:soft_player/presentation/controllers/main_controller.dart';
@@ -51,7 +50,7 @@ class _HomePageState extends State<HomePage> {
                           !element.isRingtone!)
                       .toList();
                   return ListView.builder(
-                    physics: BouncingScrollPhysics(),
+                      physics: const BouncingScrollPhysics(),
                       shrinkWrap: true,
                       itemCount: controller.songs.length,
                       itemBuilder: (context, index) => Padding(
@@ -80,31 +79,29 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Future<void> playFromHome(MainController controller, AsyncSnapshot<List<SongModel>> snapshot, int index) async {
-    controller.startPlaying(
-        snapshot.data![index].uri!.toString());
-    controller.currentSongId.value =
-        snapshot.data![index].id;
+  Future<void> playFromHome(MainController controller,
+      AsyncSnapshot<List<SongModel>> snapshot, int index) async {
+    controller.startPlaying(snapshot.data![index].uri!.toString());
+    controller.currentSongId.value = snapshot.data![index].id;
     controller.currentIndex.value = index;
     controller.currentIndex.value == 0
         ? controller.songIsFirstInQueue.value = true
         : controller.songIsFirstInQueue.value = false;
-    
-    controller.currentIndex.value ==
-        controller.songs.length - 1
+
+    controller.currentIndex.value == controller.songs.length - 1
         ? controller.songIsLastInQueue.value = true
         : controller.songIsLastInQueue.value = false;
     controller.isPlaying.value = true;
     controller.song.value = snapshot.data![index];
-    controller.songPicture.value = await controller.query.queryArtwork(controller.song.value.id, ArtworkType.AUDIO) ?? Uint8List(0);
-    print(controller.songPicture.value);
-    Get.to(
-        SongPage(), transition: Transition.downToUp);
+    controller.songPicture.value = await controller.query
+            .queryArtwork(controller.song.value.id, ArtworkType.AUDIO) ??
+        Uint8List(0);
+    Get.to(SongPage(), transition: Transition.downToUp);
   }
 }
 
 class SongPage extends StatefulWidget {
-  MainController controller = Get.find<MainController>();
+  final MainController controller = Get.find<MainController>();
 
   SongPage({
     Key? key,
@@ -117,7 +114,6 @@ class SongPage extends StatefulWidget {
 class _SongPageState extends State<SongPage> {
   @override
   Widget build(BuildContext context) {
-    print(widget.controller.song);
     return Scaffold(
       body: Container(
         color: Colors.grey.shade300,
@@ -136,12 +132,12 @@ class _SongPageState extends State<SongPage> {
               const SizedBox(
                 height: 30,
               ),
-               FutureBuilder<Obx>(
-                 future: buildControlButtons(),
-  builder: (context, widgetState) {
-    return widgetState.data!;
-  },
-)
+              FutureBuilder<Obx>(
+                future: buildControlButtons(),
+                builder: (context, widgetState) {
+                  return widgetState.data!;
+                },
+              )
             ],
           ),
         ),
@@ -151,181 +147,180 @@ class _SongPageState extends State<SongPage> {
 
   Future<Obx> buildControlButtons() async {
     return Obx(() => SizedBox(
-                  height: 80,
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: InkWell(
-                          onTap: () {
-                            if(!widget.controller.songIsFirstInQueue.value){
-                              widget.controller.nextOrPrevSong(nextSong: false);
-                              setState(() {});
-                            }
-                          },
-                          child: NeuBox(
-                              child:  Icon(
-                            Icons.skip_previous,
-                            size: 32,
-                                color: widget.controller.songIsFirstInQueue.value? Colors.grey : Colors.black,
-
-                              )),
-                        ),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: InkWell(
-                          onTap: () async {
-                            if (widget.controller.isPlaying.value) {
-                              await widget.controller.player.pause();
-                              widget.controller.isPlaying.value = false;
-                            } else {
-                              await widget.controller.player.resume();
-                              widget.controller.isPlaying.value = true;
-                            }
-                          },
-                          child: Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 20.0),
-                            child: NeuBox(
-                                child: Icon(
-                              widget.controller.isPlaying.value
-                                  ? Icons.pause_rounded
-                                  : Icons.play_arrow_rounded,
-                              size: 32,
-                            )),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: InkWell(
-                          onTap: () {
-                            if(!widget.controller.songIsLastInQueue.value){
-                              widget.controller.nextOrPrevSong(nextSong: true);
-                              setState(() {});
-                            }
-                          },
-                          child: NeuBox(
-                              child:  Icon(
-                            Icons.skip_next,
-                            size: 32,
-                                color: widget.controller.songIsLastInQueue.value? Colors.grey : Colors.black,
-                          )),
-                        ),
-                      ),
-                    ],
+          height: 80,
+          child: Row(
+            children: [
+              Expanded(
+                child: InkWell(
+                  onTap: () {
+                    if (!widget.controller.songIsFirstInQueue.value) {
+                      widget.controller.nextOrPrevSong(nextSong: false);
+                      setState(() {});
+                    }
+                  },
+                  child: NeuBox(
+                      child: Icon(
+                    Icons.skip_previous,
+                    size: 32,
+                    color: widget.controller.songIsFirstInQueue.value
+                        ? Colors.grey
+                        : Colors.black,
+                  )),
+                ),
+              ),
+              Expanded(
+                flex: 2,
+                child: InkWell(
+                  onTap: () async {
+                    if (widget.controller.isPlaying.value) {
+                      await widget.controller.player.pause();
+                      widget.controller.isPlaying.value = false;
+                    } else {
+                      await widget.controller.player.resume();
+                      widget.controller.isPlaying.value = true;
+                    }
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: NeuBox(
+                        child: Icon(
+                      widget.controller.isPlaying.value
+                          ? Icons.pause_rounded
+                          : Icons.play_arrow_rounded,
+                      size: 32,
+                    )),
                   ),
-                ));
+                ),
+              ),
+              Expanded(
+                child: InkWell(
+                  onTap: () {
+                    if (!widget.controller.songIsLastInQueue.value) {
+                      widget.controller.nextOrPrevSong(nextSong: true);
+                      setState(() {});
+                    }
+                  },
+                  child: NeuBox(
+                      child: Icon(
+                    Icons.skip_next,
+                    size: 32,
+                    color: widget.controller.songIsLastInQueue.value
+                        ? Colors.grey
+                        : Colors.black,
+                  )),
+                ),
+              ),
+            ],
+          ),
+        ));
   }
 
   Obx buildProgressBar(BuildContext context) {
     return Obx(() => SizedBox(
-                width: MediaQuery.of(context).size.width,
-                child: NeuBox(
-                  child: LinearPercentIndicator(
-                    percent: getPercentOfProgress(
-                        widget.controller.duration.value.inSeconds,
-                        widget.controller.position.value.inSeconds),
-                    progressColor: Colors.green,
-                    backgroundColor: Colors.transparent,
-                    lineHeight: 10,
-                    barRadius: const Radius.circular(10),
-                  ),
-                )));
+        width: MediaQuery.of(context).size.width,
+        child: NeuBox(
+          child: LinearPercentIndicator(
+            percent: getPercentOfProgress(
+                widget.controller.duration.value.inSeconds,
+                widget.controller.position.value.inSeconds),
+            progressColor: Colors.green,
+            backgroundColor: Colors.transparent,
+            lineHeight: 10,
+            barRadius: const Radius.circular(10),
+          ),
+        )));
   }
 
   Obx buildPositionAndDuration() {
     return Obx(
-              () => Padding(
-                padding: const EdgeInsets.all(30.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(formatTime(widget.controller.position.value)),
-                    Text(formatTime(widget.controller.duration.value))
-                  ],
-                ),
-              ),
-            );
+      () => Padding(
+        padding: const EdgeInsets.all(30.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(formatTime(widget.controller.position.value)),
+            Text(formatTime(widget.controller.duration.value))
+          ],
+        ),
+      ),
+    );
   }
 
   SizedBox buildSongPicture() {
-    print(widget.controller.songPicture.value.runtimeType);
     return SizedBox(
-              height: 400,
-              child: NeuBox(
-                  child: Obx(
-                    ()=> Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                         widget.controller.songPicture.value != null && widget.controller.songPicture.value.isNotEmpty?
-                             SizedBox(
-                              height: 315,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: Image.memory(
-                                widget.controller.songPicture.value,
-                                  fit: BoxFit.fitHeight,
-                                ),
-                              ),
-                            ):  Icon(
-                              Icons.image_not_supported,
-                              size: 330,
-                            ),
-
-                    Padding(
-                      padding: const EdgeInsets.only(top: 5.0, left: 5),
-                      child: Text(
-                        widget.controller.song.value.artist!,
-                        style: TextStyle(
-                            fontSize: 16, color: Colors.grey.shade700),
+      height: 400,
+      child: NeuBox(
+          child: Obx(
+        () => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            widget.controller.songPicture.value.isNotEmpty
+                ? SizedBox(
+                    height: 315,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Image.memory(
+                        widget.controller.songPicture.value,
+                        fit: BoxFit.fitHeight,
                       ),
                     ),
-                    Flexible(
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 5.0, left: 5),
-                        child: Text(
-                          widget.controller.song.value.title,
-                          style: const TextStyle(
-                              fontSize: 20, color: Colors.black),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ),
-                ],
+                  )
+                : const Icon(
+                    Icons.image_not_supported,
+                    size: 330,
+                  ),
+            Padding(
+              padding: const EdgeInsets.only(top: 5.0, left: 5),
+              child: Text(
+                widget.controller.song.value.artist!,
+                style: TextStyle(fontSize: 16, color: Colors.grey.shade700),
               ),
-                  )),
-            );
+            ),
+            Flexible(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 5.0, left: 5),
+                child: Text(
+                  widget.controller.song.value.title,
+                  style: const TextStyle(fontSize: 20, color: Colors.black),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),
+          ],
+        ),
+      )),
+    );
   }
 
   Row buildTopButtons() {
     return Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                InkWell(
-                  onTap: () => Get.back(),
-                  child: SizedBox(
-                    height: 60,
-                    width: 60,
-                    child: NeuBox(
-                      child: const Icon(
-                        Icons.close_rounded,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 60,
-                  width: 60,
-                  child: NeuBox(
-                    child: const Icon(
-                      Icons.menu_rounded,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-              ],
-            );
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        InkWell(
+          onTap: () => Get.back(),
+          child: SizedBox(
+            height: 60,
+            width: 60,
+            child: NeuBox(
+              child: const Icon(
+                Icons.close_rounded,
+                color: Colors.black,
+              ),
+            ),
+          ),
+        ),
+        SizedBox(
+          height: 60,
+          width: 60,
+          child: NeuBox(
+            child: const Icon(
+              Icons.menu_rounded,
+              color: Colors.black,
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   void nextOrPrevSong({required bool nextSong}) {
@@ -337,11 +332,9 @@ class _SongPageState extends State<SongPage> {
         ? widget.controller.songIsFirstInQueue.value = true
         : widget.controller.songIsFirstInQueue.value = false;
 
-    widget.controller.currentIndex.value ==
-        widget.controller.songs.length - 1
+    widget.controller.currentIndex.value == widget.controller.songs.length - 1
         ? widget.controller.songIsLastInQueue.value = true
         : widget.controller.songIsLastInQueue.value = false;
-
 
     widget.controller.startPlaying(widget
         .controller.songs[widget.controller.currentIndex.value].uri!
@@ -352,7 +345,8 @@ class _SongPageState extends State<SongPage> {
 
     widget.controller.isPlaying.value = true;
 
-    widget.controller.song.value = widget.controller.songs[widget.controller.currentIndex.value];
+    widget.controller.song.value =
+        widget.controller.songs[widget.controller.currentIndex.value];
   }
 
   String formatTime(Duration duration) {
@@ -369,8 +363,8 @@ class _SongPageState extends State<SongPage> {
     double secondAction = firstAction * 100;
     String intAction = int.parse(secondAction.round().toString()).toString();
     double result = int.parse(intAction) < 10
-        ? double.parse('0.0' + intAction)
-        : double.parse('0.' + intAction);
+        ? double.parse('0.0$intAction')
+        : double.parse('0.$intAction');
     return result;
   }
 }
